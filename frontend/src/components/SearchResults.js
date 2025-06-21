@@ -1,21 +1,21 @@
 import React from 'react';
-import { ExternalLink, Sparkles } from 'lucide-react';
+import { Clock, Zap, Search, Image as ImageIcon } from 'lucide-react';
 
-const SearchResults = ({ results, isLoading }) => {
+const SearchResults = ({ results, isLoading, searchType = 'image' }) => {
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Finding Similar Images...
-        </h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, index) => (
-            <div key={index} className="animate-pulse">
-              <div className="bg-gray-300 aspect-square rounded-lg mb-4"></div>
-              <div className="h-4 bg-gray-300 rounded mb-2"></div>
-              <div className="h-3 bg-gray-300 rounded w-3/4"></div>
-            </div>
-          ))}
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+            {searchType === 'image' ? 'Analyzing Image...' : 'Searching Images...'}
+          </h3>
+          <p className="text-gray-600">
+            {searchType === 'image' 
+              ? 'AI is analyzing your image and finding similar matches'
+              : 'AI is understanding your query and finding matching images'
+            }
+          </p>
         </div>
       </div>
     );
@@ -24,113 +24,123 @@ const SearchResults = ({ results, isLoading }) => {
   if (!results || !results.similar_images || results.similar_images.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Sparkles className="w-8 h-8 text-gray-400" />
+        <div className="text-gray-400 mb-4">
+          <Search className="w-16 h-16 mx-auto" />
         </div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">No similar images found</h3>
+        <h3 className="text-2xl font-semibold text-gray-900 mb-2">No Results Found</h3>
         <p className="text-gray-600">
-          Try uploading a different image or check back later as we add more images to our collection.
+          {searchType === 'image' 
+            ? 'No similar images found. Try uploading a different image.'
+            : 'No matching images found. Try a different search query.'
+          }
         </p>
       </div>
     );
   }
 
+  const { similar_images, search_time, query } = results;
+  const isTextSearch = searchType === 'text';
+
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Similar Images Found
-        </h2>
-        <p className="text-gray-600">
-          Found {results.similar_images.length} visually similar images with AI-powered explanations
-        </p>
+      {/* Results Header */}
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center mb-4">
+          {isTextSearch ? (
+            <Search className="w-8 h-8 text-purple-600 mr-3" />
+          ) : (
+            <ImageIcon className="w-8 h-8 text-blue-600 mr-3" />
+          )}
+          <h2 className="text-3xl font-bold text-gray-900">
+            {isTextSearch ? 'Text Search Results' : 'Similar Images Found'}
+          </h2>
+        </div>
+        
+        {isTextSearch && query && (
+          <div className="bg-gray-50 rounded-lg p-3 mb-4 inline-block">
+            <p className="text-gray-700">
+              <span className="font-medium">Search query:</span> "{query}"
+            </p>
+          </div>
+        )}
+        
+        <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+          <div className="flex items-center">
+            <Zap className="w-4 h-4 mr-1" />
+            <span>{similar_images.length} results</span>
+          </div>
+          {search_time && (
+            <div className="flex items-center">
+              <Clock className="w-4 h-4 mr-1" />
+              <span>{search_time.toFixed(2)}s</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {results.similar_images.map((image, index) => (
-          <div key={image.image_id} className="group">
-            <div className="relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+      {/* Results Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {similar_images.map((image, index) => (
+          <div
+            key={image.image_id}
+            className="bg-gray-50 rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
+          >
+            {/* Image */}
+            <div className="relative">
               <img
                 src={image.image_url}
-                alt={`Search result ${index + 1}`}
-                className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
+                alt={`Similar image ${index + 1}`}
+                className="w-full h-48 object-cover"
                 onError={(e) => {
-                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzBMMTMwIDEwMEgxMTBWMTMwSDkwVjEwMEg3MEwxMDAgNzBaIiBmaWxsPSIjOUNBM0FGIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOUNBM0FGIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiI+SW1hZ2UgTm90IEZvdW5kPC90ZXh0Pgo8L3N2Zz4K';
+                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVIMjAwVjEyNUgxMDBWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxjaXJjbGUgY3g9IjEzMCIgY3k9IjEwMCIgcj0iMTAiIGZpbGw9IiNEMUQ1REIiLz4KPHBhdGggZD0iTTE0MCAzNUwyMDAgNzVIMTQwVjM1WiIgZmlsbD0iI0Q2REFEOSIvPgo8L3N2Zz4K';
+                  e.target.alt = 'Image not found';
                 }}
               />
-              
               {/* Similarity Score Badge */}
               <div className="absolute top-2 right-2">
-                <span className="bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full">
-                  {Math.round(image.similarity_score * 100)}% match
+                <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${
+                  image.similarity_score > 0.8 
+                    ? 'bg-green-500' 
+                    : image.similarity_score > 0.6 
+                      ? 'bg-yellow-500' 
+                      : 'bg-red-500'
+                }`}>
+                  {(image.similarity_score * 100).toFixed(0)}%
                 </span>
-              </div>
-
-              {/* View Full Image Button */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                <button
-                  onClick={() => window.open(image.image_url, '_blank')}
-                  className="bg-white text-gray-900 px-4 py-2 rounded-lg font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center space-x-2"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>View Full Size</span>
-                </button>
               </div>
             </div>
 
-            {/* Image Info */}
-            <div className="mt-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Similarity: {Math.round(image.similarity_score * 100)}%
-                </span>
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 h-2 rounded-full mr-1 ${
-                        i < Math.round(image.similarity_score * 5)
-                          ? 'bg-green-500'
-                          : 'bg-gray-300'
-                      }`}
-                    />
-                  ))}
+            {/* Content */}
+            <div className="p-4">
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-500">
+                    Match #{index + 1}
+                  </span>
+                  <span className="text-sm text-gray-400">
+                    Score: {image.similarity_score.toFixed(3)}
+                  </span>
                 </div>
               </div>
-
-              {/* AI Explanation */}
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="flex items-start space-x-2">
-                  <Sparkles className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs font-medium text-blue-600 mb-1">AI Explanation</p>
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      {image.explanation}
-                    </p>
-                  </div>
-                </div>
-              </div>
+              
+              {/* Explanation */}
+              <p className="text-sm text-gray-700 leading-relaxed">
+                {image.explanation}
+              </p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Upload Info */}
-      {results.file_url && (
-        <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-sm text-blue-800">
-            <strong>Your uploaded image:</strong> {results.file_name}
-          </p>
-          <a
-            href={results.file_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:text-blue-800 underline"
-          >
-            View your uploaded image
-          </a>
-        </div>
-      )}
+      {/* Additional Info */}
+      <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+        <p className="text-sm text-gray-500">
+          {isTextSearch 
+            ? 'Results are ranked by semantic similarity to your text description'
+            : 'Results are ranked by visual similarity to your uploaded image'
+          }
+        </p>
+      </div>
     </div>
   );
 };

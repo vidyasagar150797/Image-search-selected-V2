@@ -116,4 +116,73 @@ export const getSystemStats = async () => {
   return response.data;
 };
 
+/**
+ * Search for images using text description
+ * @param {string} query - Text description of what to search for
+ * @param {number} topK - Number of results to return (default: 5)
+ * @returns {Promise<Object>} - Search results
+ */
+export const searchImagesByText = async (query, topK = 5) => {
+  const response = await api.post('/search-by-text', {
+    query: query,
+    top_k: topK
+  });
+  
+  return response.data;
+};
+
+/**
+ * Upload CSV/Excel file with image URLs for bulk indexing
+ * @param {File} file - CSV or Excel file
+ * @param {string} columnName - Name of the column containing URLs
+ * @returns {Promise<Object>} - Bulk upload response
+ */
+export const uploadCSVForIndexing = async (file, columnName = 'url') => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const response = await api.post('/upload-csv', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    params: {
+      column_name: columnName,
+    },
+  });
+  
+  return response.data;
+};
+
+/**
+ * Upload CSV/Excel file with progress tracking
+ * @param {File} file - CSV or Excel file
+ * @param {string} columnName - Name of the column containing URLs
+ * @returns {Promise<Object>} - Upload initiation response with task_id
+ */
+export const uploadCSVWithProgress = async (file, columnName = 'url') => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const response = await api.post('/upload-csv-with-progress', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    params: {
+      column_name: columnName,
+    },
+  });
+  
+  return response.data;
+};
+
+/**
+ * Get upload progress for a specific task
+ * @param {string} taskId - The task ID returned from uploadCSVWithProgress
+ * @returns {Promise<Object>} - Progress information
+ */
+export const getUploadProgress = async (taskId) => {
+  const response = await api.get(`/upload-progress/${taskId}`);
+  return response.data;
+};
+
 export default api; 

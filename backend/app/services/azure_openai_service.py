@@ -158,7 +158,7 @@ class AzureOpenAIService:
                         "content": [
                             {
                                 "type": "text",
-                                "text": "Compare these two images and explain why they are visually similar. Focus on specific visual elements like objects, colors, composition, style, and mood. Keep the explanation concise but informative (2-3 sentences)."
+                                "text": "Compare these two images and explain why they are visually similar in 1 short sentence. Focus on the most obvious visual similarity like objects, colors, or composition."
                             },
                             {
                                 "type": "image_url",
@@ -175,7 +175,7 @@ class AzureOpenAIService:
                         ]
                     }
                 ],
-                "max_tokens": 150,
+                "max_tokens": 50,
                 "temperature": 0.3
             }
             

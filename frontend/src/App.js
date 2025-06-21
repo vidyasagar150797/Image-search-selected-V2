@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import ImageUpload from './components/ImageUpload';
+import TextSearch from './components/TextSearch';
+import CSVUpload from './components/CSVUpload';
 import SearchResults from './components/SearchResults';
 import Header from './components/Header';
 import './App.css';
@@ -8,6 +10,7 @@ import './App.css';
 function App() {
   const [searchResults, setSearchResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('image'); // 'image', 'text', or 'csv'
 
   const handleSearchComplete = (results) => {
     setSearchResults(results);
@@ -17,6 +20,13 @@ function App() {
   const handleSearchStart = () => {
     setIsLoading(true);
     setSearchResults(null);
+  };
+
+  const switchTab = (tab) => {
+    if (!isLoading) {
+      setActiveTab(tab);
+      setSearchResults(null);
+    }
   };
 
   return (
@@ -43,66 +53,130 @@ function App() {
               <span className="text-blue-600"> Image Search</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Upload an image to find visually similar images with AI-generated explanations. 
+              Search by uploading an image, describing what you're looking for, or bulk index images from CSV/Excel files. 
               Powered by Azure OpenAI and advanced computer vision.
             </p>
           </div>
 
-          {/* Upload Section */}
-          <div className="mb-12">
-            <ImageUpload 
-              onSearchStart={handleSearchStart}
-              onSearchComplete={handleSearchComplete}
-              isLoading={isLoading}
-            />
+          {/* Search Mode Tabs */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-white rounded-xl p-2 shadow-lg">
+              <button
+                onClick={() => switchTab('image')}
+                disabled={isLoading}
+                className={`px-4 py-3 rounded-lg font-semibold transition-all ${
+                  activeTab === 'image'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-blue-600 disabled:opacity-50'
+                }`}
+              >
+                🖼️ Search by Image
+              </button>
+              <button
+                onClick={() => switchTab('text')}
+                disabled={isLoading}
+                className={`px-4 py-3 rounded-lg font-semibold transition-all ${
+                  activeTab === 'text'
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-purple-600 disabled:opacity-50'
+                }`}
+              >
+                ✨ Search by Text
+              </button>
+              <button
+                onClick={() => switchTab('csv')}
+                disabled={isLoading}
+                className={`px-4 py-3 rounded-lg font-semibold transition-all ${
+                  activeTab === 'csv'
+                    ? 'bg-green-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-green-600 disabled:opacity-50'
+                }`}
+              >
+                📊 Bulk Index CSV
+              </button>
+            </div>
           </div>
 
-          {/* Results Section */}
-          {(searchResults || isLoading) && (
+          {/* Content Section */}
+          <div className="mb-12">
+            {activeTab === 'image' && (
+              <ImageUpload 
+                onSearchStart={handleSearchStart}
+                onSearchComplete={handleSearchComplete}
+                isLoading={isLoading}
+              />
+            )}
+            {activeTab === 'text' && (
+              <TextSearch 
+                onSearchStart={handleSearchStart}
+                onSearchComplete={handleSearchComplete}
+                isLoading={isLoading}
+              />
+            )}
+            {activeTab === 'csv' && (
+              <CSVUpload />
+            )}
+          </div>
+
+          {/* Results Section - Only show for search tabs */}
+          {(searchResults || isLoading) && activeTab !== 'csv' && (
             <div className="mb-12">
               <SearchResults 
                 results={searchResults} 
                 isLoading={isLoading}
+                searchType={activeTab}
               />
             </div>
           )}
 
           {/* Features Section */}
           {!searchResults && !isLoading && (
-            <div className="grid md:grid-cols-3 gap-8 mt-16">
+            <div className="grid md:grid-cols-4 gap-6 mt-16">
               <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Smart Visual Analysis</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Visual Search</h3>
                 <p className="text-gray-600">
-                  Advanced AI algorithms analyze your images to understand visual elements, composition, and style.
-                </p>
-              </div>
-
-              <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Lightning Fast Search</h3>
-                <p className="text-gray-600">
-                  Get results in seconds with optimized vector search across thousands of images.
+                  Upload images to find visually similar matches using AI-powered analysis.
                 </p>
               </div>
 
               <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">AI Explanations</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Text Search</h3>
                 <p className="text-gray-600">
-                  Understand why images are similar with detailed AI-generated explanations.
+                  Describe what you're looking for in natural language and find matching images instantly.
+                </p>
+              </div>
+
+              <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Bulk Indexing</h3>
+                <p className="text-gray-600">
+                  Upload CSV/Excel files with image URLs to add thousands of images to the search index.
+                </p>
+              </div>
+
+              <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Lightning Fast</h3>
+                <p className="text-gray-600">
+                  Get results in seconds with optimized vector search across thousands of images.
                 </p>
               </div>
             </div>

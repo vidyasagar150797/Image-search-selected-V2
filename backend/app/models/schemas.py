@@ -57,6 +57,34 @@ class ErrorResponse(BaseModel):
     detail: Optional[str] = None
     timestamp: datetime
 
+class TextSearchRequest(BaseModel):
+    """Request model for text-based image search"""
+    query: str = Field(..., min_length=1, max_length=500, description="Text query to search for similar images")
+    top_k: Optional[int] = Field(default=5, ge=1, le=20, description="Number of results to return")
+
+class TextSearchResponse(BaseModel):
+    """Response model for text-based image search"""
+    message: str
+    query: str
+    similar_images: List[SimilarImage]
+    search_time: Optional[float] = None
+
+class BulkUploadResponse(BaseModel):
+    """Response model for bulk image upload"""
+    message: str
+    total_urls: int
+    successful_indexes: int
+    failed_urls: List[str] = []
+    processing_time: Optional[float] = None
+
+class IndexingProgress(BaseModel):
+    """Model for indexing progress updates"""
+    current: int
+    total: int
+    status: str
+    current_url: Optional[str] = None
+    errors: List[str] = []
+
 # Update forward references
 ImageUploadResponse.model_rebuild()
 SearchResponse.model_rebuild() 
