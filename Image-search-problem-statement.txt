@@ -1,0 +1,40 @@
+Problem Statement
+In today's digital landscape, organizations manage vast repositories of visual content. The ability to efficiently search and interpret this content using natural language queries presents a sophisticated technical challenge, requiring a combination of computer vision, natural language processing (NLP), and scalable system design.
+Your task is to design and implement an enterprise-grade visual search system that enables users to locate relevant images based on natural language queries while providing AI-driven explanations for the search results. Given the complexity of this problem, a highly optimized and scalable solution is expected.
+This challenge requires a strategic approach to system design, efficiency optimization, and explainability in AI-driven search.
+
+Key Requirements
+1. Data Processing & Embedding Generation
+* Utilize the provided dataset (accessible via photos_url.csv and download_images.py).
+* Implement efficient image embedding extraction using modern vision models.
+* Design a scalable storage solution for the generated embeddings to ensure quick retrieval.
+2. Semantic Search Implementation
+* Develop a robust semantic search mechanism to match textual queries with relevant images.
+* The system should return the top 5 most relevant images for each query.
+* Optimize search operations to maintain a latency of under 3-5 seconds.
+3. AI-Powered Explanation Generation
+* Implement a component that generates concise yet insightful explanations for why an image is relevant to a given query.
+* The explanations should refer to specific visual elements, attributes, and context within the image.
+* Ensure explanations are business-appropriate and technically sound.
+4. Scalable System Architecture
+* Develop a production-ready API using FastAPI.
+* Implement a clean and intuitive web interface for users to interact with the system.
+* Ensure the system is containerized using Docker and ready for cloud deployment.
+* Optimize the system for handling high concurrency and large-scale datasets.
+
+Dataset Access & Setup
+1. The dataset is provided in photos_url.csv.
+2. Use the provided download_images.py script to retrieve image files.
+3. Implement a preprocessing pipeline to generate embeddings and store them efficiently.
+
+Evaluation Criteria
+Your solution will be evaluated based on the following aspects:
+* Technical Depth: Quality of algorithms used for embedding generation, search accuracy, and explanation generation.
+* System Performance: Efficiency of the search mechanism, latency, and scalability.
+* Architectural Design: Maintainability, deployment readiness, and API efficiency.
+* Explainability & UX: Clarity and effectiveness of AI-generated explanations and the user interface.
+
+Expectations from Applicants
+This challenge requires strategic thinking and technical expertise. Your solution should not only be technically sound but also optimized for real-world use cases. Consider edge cases, system constraints, and user experience while designing your solution.
+Good Luck!
+
